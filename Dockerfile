@@ -1,8 +1,4 @@
-ARG NODE_VERSION=lts
-
-FROM node:$NODE_VERSION-alpine
-
-ENV COREPACK_ENABLE_DOWNLOAD_PROMPT=0
+FROM eclipse-temurin:21-jre-alpine
 
 RUN apk update && \
     apk upgrade && \
@@ -14,12 +10,6 @@ RUN chmod +x /usr/local/bin/entrypoint.sh
 
 WORKDIR /home/container
 
-RUN corepack enable && \
-    yarn policies set-version && \
-    yarn config set nodeLinker node-modules
-
-ENV USER=container HOME=/home/container
-
 USER container
 
-CMD ["entrypoint.sh"]
+CMD ["/usr/local/bin/entrypoint.sh"]

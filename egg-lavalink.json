@@ -1,0 +1,53 @@
+{
+    "_comment": "DO NOT EDIT: FILE GENERATED AUTOMATICALLY BY PTERODACTYL PANEL - PTERODACTYL.IO",
+    "meta": {
+        "version": "PTDL_v2",
+        "update_url": null
+    },
+    "exported_at": "2026-05-12T00:00:00+00:00",
+    "name": "Lavalink",
+    "author": "pterodactyl@stan1712.com",
+    "description": "Lavalink is a standalone audio sending node based on Lavaplayer and JDA-Audio. It allows bots to play music without the audio being processed by the bot itself, reducing resource usage significantly.",
+    "features": null,
+    "docker_images": {
+        "Java 21 (recommended)": "ghcr.io/parkervcp/yolks:java_21",
+        "Java 17": "ghcr.io/parkervcp/yolks:java_17"
+    },
+    "file_denylist": [],
+    "startup": "java -Xmx{{SERVER_MEMORY}}M -jar Lavalink.jar",
+    "config": {
+        "files": "{\"application.yml\": {\"parser\": \"yaml\", \"find\": {\"server.port\": \"{{server.build.default.port}}\", \"lavalink.server.password\": \"{{env.LAVALINK_PASSWORD}}\"}}}",
+        "startup": "{\"done\": \"Lavalink is ready to accept connections.\"}",
+        "logs": "{}",
+        "stop": "^^C"
+    },
+    "scripts": {
+        "installation": {
+            "script": "#!/bin/bash\n\ncd /mnt/server\n\nLAVALINK_VERSION=\"${LAVALINK_VERSION:-latest}\"\n\necho \"Downloading Lavalink version: ${LAVALINK_VERSION}\"\n\nif [ \"${LAVALINK_VERSION}\" == \"latest\" ]; then\n    DOWNLOAD_URL=\"https://github.com/lavalink-devs/Lavalink/releases/latest/download/Lavalink.jar\"\nelse\n    DOWNLOAD_URL=\"https://github.com/lavalink-devs/Lavalink/releases/download/v${LAVALINK_VERSION}/Lavalink.jar\"\nfi\n\necho \"Downloading from ${DOWNLOAD_URL}...\"\ncurl -L -o Lavalink.jar \"${DOWNLOAD_URL}\"\n\nif [ $? -ne 0 ]; then\n    echo \"ERROR: Failed to download Lavalink.jar\"\n    exit 1\nfi\n\necho \"Download complete! Size: $(du -sh Lavalink.jar)\"\n\n# Create default application.yml only if it doesn't exist\nif [ ! -f application.yml ]; then\n    echo \"Creating default application.yml...\"\n    cat > application.yml << 'YAML_EOF'\nserver:\n  port: 2333\n  address: 0.0.0.0\n  http2:\n    enabled: false\n\nplugins:\n\nlavalink:\n  plugins:\n  server:\n    password: \"youshallnotpass\"\n    sources:\n      youtube: false\n      bandcamp: true\n      soundcloud: true\n      twitch: true\n      vimeo: true\n      nico: true\n      http: true\n      local: false\n    filters:\n      volume: true\n      equalizer: true\n      karaoke: true\n      timescale: true\n      tremolo: true\n      vibrato: true\n      distortion: true\n      rotation: true\n      channelMix: true\n      lowPass: true\n    bufferDurationMs: 400\n    frameBufferDurationMs: 5000\n    opusEncodingQuality: 10\n    resamplingQuality: LOW\n    trackStuckThresholdMs: 10000\n    useSeekGhosting: true\n    youtubePlaylistLoadLimit: 6\n    playerUpdateInterval: 5\n    youtubeSearchEnabled: true\n    soundcloudSearchEnabled: true\n    gc-warnings: true\n\nmetrics:\n  prometheus:\n    enabled: false\n    endpoint: /metrics\n\nsentry:\n  dsn: \"\"\n  environment: \"\"\n\nlogging:\n  file:\n    path: ./logs/\n  level:\n    root: INFO\n    lavalink: INFO\n  request:\n    enabled: true\n    includeClientInfo: true\n    includeHeaders: false\n    includeQueryString: true\n    includePayload: true\n    maxPayloadLength: 10000\n  logback:\n    rollingpolicy:\n      max-file-size: 1GB\n      max-history: 30\nYAML_EOF\n    echo \"application.yml created successfully.\"\nelse\n    echo \"application.yml already exists, skipping creation.\"\nfi\n\necho \"Installation complete!\"\n",
+            "container": "ghcr.io/parkervcp/yolks:java_21",
+            "entrypoint": "bash"
+        }
+    },
+    "variables": [
+        {
+            "name": "Lavalink Version",
+            "description": "Version of Lavalink to download. Use 'latest' for the most recent stable release, or specify a version like '4.0.8'.",
+            "env_variable": "LAVALINK_VERSION",
+            "default_value": "latest",
+            "user_viewable": true,
+            "user_editable": true,
+            "rules": "required|string|max:20",
+            "field_type": "text"
+        },
+        {
+            "name": "Lavalink Password",
+            "description": "Password used to authenticate connections to the Lavalink server. Change this from the default for security.",
+            "env_variable": "LAVALINK_PASSWORD",
+            "default_value": "youshallnotpass",
+            "user_viewable": true,
+            "user_editable": true,
+            "rules": "required|string|max:100",
+            "field_type": "text"
+        }
+    ]
+}
